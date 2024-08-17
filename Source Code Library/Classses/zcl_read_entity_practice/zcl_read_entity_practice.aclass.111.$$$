@@ -1,0 +1,76 @@
+CLASS zcl_read_entity_practice DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_read_entity_practice IMPLEMENTATION.
+
+
+  METHOD if_oo_adt_classrun~main.
+
+* There are 3 ways to read an entity
+* 1. Short Form
+* 2. Long Form
+* 3. Dynamic Form
+
+
+* 1. Short Form
+*************************************************************************
+
+    READ ENTITY zi_travel_ay_m "Single Entity Name
+*    FIELDS ( AgencyId CustomerId CreatedAt )                               "While using FIELDS keep as WITH, Not FROM
+*    FROM  VALUE #( ( ) )
+    ALL FIELDS                                                              "Or you can fetch all fields from ENTITY
+    WITH VALUE #( ( %key-TravelId = '00000019'                              "Way to give input and Only TravelId get fetched because no fields selected
+*                    %control = VALUE #( AgencyId   = if_abap_behv=>mk-on   "One of way to select the fields from entity by putting ON on fields
+*                                        CustomerId = if_abap_behv=>mk-on
+*                                        BeginDate  = if_abap_behv=>mk-on
+*                                      )
+                  )
+                )
+    RESULT DATA(lt_travel_short)
+    FAILED DATA(lt_failed_short).
+
+    IF lt_failed_short IS NOT INITIAL.
+      out->write( |Read Failed| ).
+    ELSE.
+      out->write( lt_travel_short ).
+    ENDIF.
+    
+    READ ENTITY zi_travel_ay_m "Single Entity Name
+*    FIELDS ( AgencyId CustomerId CreatedAt )                               "While using FIELDS keep as WITH, Not FROM
+*    FROM  VALUE #( ( ) )
+    ALL FIELDS                                                              "Or you can fetch all fields from ENTITY
+    WITH VALUE #( ( %key-TravelId = '00000019'                              "Way to give input and Only TravelId get fetched because no fields selected
+*                    %control = VALUE #( AgencyId   = if_abap_behv=>mk-on   "One of way to select the fields from entity by putting ON on fields
+*                                        CustomerId = if_abap_behv=>mk-on
+*                                        BeginDate  = if_abap_behv=>mk-on
+*                                      )
+                  )
+                )
+    RESULT DATA(lt_travel_asso_short)
+    FAILED DATA(lt_failed_asso_short).
+
+    IF lt_failed_asso_short IS NOT INITIAL.
+      out->write( |Read Failed| ).
+    ELSE.
+      out->write( lt_travel_asso_short ).
+    ENDIF.
+    
+*  2. Long Form : We can fetch multiple related entities at once
+**********************************************************************
+
+    READ ENTITIES OF zi_travel_ay_m  "Give Root Entity Name
+      
+
+  ENDMETHOD.
+ENDCLASS.

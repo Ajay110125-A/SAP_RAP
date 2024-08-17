@@ -1,0 +1,19 @@
+*"* use this source file for the definition and implementation of
+*"* local helper classes, interface definitions and type
+*"* declarations
+*class lclass definition create private.
+*		
+*  public section.
+*    METHODS : sample.
+*  protected section.
+*  private section.
+*
+*endclass.
+*
+*class lclass implementation.
+*
+*  method sample.
+*    DATA(lmess) = NEW me->
+*  endmethod.
+*
+*endclass.
