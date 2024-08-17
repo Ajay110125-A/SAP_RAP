@@ -1,0 +1,165 @@
+CLASS zcl_read_entity_practice DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_read_entity_practice IMPLEMENTATION.
+
+
+  METHOD if_oo_adt_classrun~main.
+
+* There are 3 ways to read an entity
+* 1. Short Form
+* 2. Long Form
+* 3. Dynamic Form
+
+
+
+* 1. Short Form
+*************************************************************************
+    out->write( |Short Form| ).
+    out->write( |*************************************************************************| ).
+    READ ENTITY zi_travel_ay_m "Single Entity Name
+*    FIELDS ( AgencyId CustomerId CreatedAt )                               "While using FIELDS keep as WITH, Not FROM
+*    FROM  VALUE #( ( ) )
+    ALL FIELDS                                                              "Or you can fetch all fields from ENTITY
+    WITH VALUE #( ( %key-TravelId = '00000019'                              "Way to give input and Only TravelId get fetched because no fields selected
+*                    %control = VALUE #( AgencyId   = if_abap_behv=>mk-on   "One of way to select the fields from entity by putting ON on fields
+*                                        CustomerId = if_abap_behv=>mk-on
+*                                        BeginDate  = if_abap_behv=>mk-on
+*                                      )
+                  )
+                )
+    RESULT DATA(lt_travel_short)
+    FAILED DATA(lt_failed_short).
+
+    IF lt_failed_short IS NOT INITIAL.
+      out->write( |Read Failed| ).
+    ELSE.
+      out->write( lt_travel_short ).
+    ENDIF.
+
+*   Searching on Association of that Entity
+    out->write( |Short Form : Read on Association| ).
+    READ ENTITY zi_travel_ay_m                          "Single Entity Name
+    BY \_Booking                                        "Also can search Association Booking
+    ALL FIELDS
+    WITH VALUE #( ( %key-TravelId = '00000019' )
+                  ( %key-TravelId = '00000020' ) )
+    RESULT DATA(lt_travel_asso_short)
+    FAILED DATA(lt_failed_asso_short).
+
+    IF lt_failed_asso_short IS NOT INITIAL.
+      out->write( |Read Failed| ).
+    ELSE.
+      out->write( lt_travel_asso_short ).
+    ENDIF.
+
+
+
+*  2. Long Form : We can fetch multiple related entities at once
+**********************************************************************
+    out->write( |Long Form| ).
+    out->write( |*************************************************************************| ).
+    READ ENTITIES OF zi_travel_ay_m  "Give Root Entity Name
+
+    ENTITY zi_travel_ay_m
+    ALL FIELDS WITH VALUE #( ( %key-TravelId = '00000019' ) )
+    RESULT DATA(lt_travel_long)
+
+    ENTITY zi_booking_ay_m
+    ALL FIELDS WITH VALUE #( ( %key-TravelId = '00000019' %key-BookingId = '0002' ) ) "While fetching using long form you give all key fields of that ENTITY
+    RESULT DATA(lt_booking_long)
+
+    ENTITY zi_booksupp_ay_m
+    ALL FIELDS WITH VALUE #( ( %key-TravelId = '00000019' %key-BookingId = '0002' %key-BookingSupplimentId = '01' ) ) "While fetching using long form you give all key fields of that ENTITY
+    RESULT DATA(lt_booksupp_long)
+
+    FAILED DATA(lt_failed_long).
+
+    IF lt_failed_long IS NOT INITIAL.
+      out->write( |Read Failed| ).
+    ELSE.
+      out->write( |Long Form : Root Entity Travel| ).
+      out->write( lt_travel_long ).
+      out->write( |Long Form : Child Entity Booking| ).
+      out->write( lt_booking_long ).
+      out->write( |Long Form: Booking Suppliment| ).
+      out->write( lt_booksupp_long ).
+    ENDIF.
+
+
+*  3.Dynamic Form :
+
+    out->write( |Dynamic Form| ).
+    out->write( |*************************************************************************| ).
+    DATA : it_optab       TYPE abp_behv_retrievals_tab,               "Operation Table for getting ENTITY Data
+           it_travel      TYPE TABLE FOR READ IMPORT zi_travel_ay_m, "Input table for ENTITY
+           it_result      TYPE TABLE FOR READ RESULT zi_travel_ay_m, "Result table for ENTITY
+           it_booking     TYPE TABLE FOR READ IMPORT zi_travel_ay_m\_Booking,
+           it_booking_res TYPE TABLE FOR READ RESULT zi_travel_ay_m\_Booking.
+
+
+*   Filling input table TRAVEL
+    it_travel = VALUE #( ( %key-TravelId = '00000019'
+                           %control = VALUE #( AgencyId     = if_abap_behv=>mk-on
+                                               CustomerId   = if_abap_behv=>mk-on
+                                               BeginDate    = if_abap_behv=>mk-on
+                                              )
+                       ) ).
+
+    it_booking = VALUE #( (
+                            %key-TravelId = '00000019'
+                            %control = VALUE #(
+                                                 BookingId       = if_abap_behv=>mk-on
+                                                 BookingDate     = if_abap_behv=>mk-on
+                                                 BookingStatus   = if_abap_behv=>mk-on
+                                              )
+                        ) ).
+
+
+*   Filling operation table
+    it_optab = VALUE #(
+                        (
+                            op            = if_abap_behv=>op-r-read
+                            entity_name   = 'ZI_TRAVEL_AY_M'
+                            instances     = REF #( it_travel )
+                            results       = REF #( it_result )
+                        )
+
+                        (
+                            op          = if_abap_behv=>op-r-read_ba
+                            entity_name = 'ZI_TRAVEL_AY_M'
+                            sub_name    = '_BOOKING'
+                            instances   = REF #( it_booking )
+                            results     = REF #( it_booking_res )
+                        )
+                      ).
+
+    READ ENTITIES OPERATIONS it_optab
+        FAILED DATA(lt_failed_dynamic) .
+
+    IF lt_failed_dynamic IS NOT INITIAL.
+      out->write( |Dynamic read failed| ).
+    ELSE.
+      out->write( |Dynamic Read : Travel| ).
+      out->write( it_result ).
+      out->write( |Dynamic Read : Booking| ).
+      out->write( it_booking_res ).
+    ENDIF.
+
+
+
+
+
+  ENDMETHOD.
+ENDCLASS.
