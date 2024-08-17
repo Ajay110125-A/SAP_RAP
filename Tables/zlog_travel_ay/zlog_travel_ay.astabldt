@@ -1,0 +1,17 @@
+@EndUserText.label : 'Log table for Travel Entity changes'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zlog_travel_ay {
+
+  key client        : abap.clnt not null;
+  key change_id     : abap.raw(16) not null;
+  user_id           : abap.char(12);
+  travelid          : /dmo/travel_id;
+  change_operation  : abap.char(10);
+  change_field_name : abap.char(32);
+  change_value      : abap.char(32);
+  created_at        : timestampl;
+
+}

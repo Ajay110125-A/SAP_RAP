@@ -1,0 +1,16 @@
+@EndUserText.label : 'August Challenge Travel Table'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zaug_t1_travel {
+
+  key client    : abap.clnt not null;
+  key travel_id : /dmo/travel_id not null;
+  description   : /dmo/description;
+  @Semantics.amount.currencyCode : 'zaug_t1_travel.currency_code'
+  total_price   : /dmo/total_price;
+  currency_code : /dmo/currency_code;
+  status        : /dmo/overall_status;
+
+}
