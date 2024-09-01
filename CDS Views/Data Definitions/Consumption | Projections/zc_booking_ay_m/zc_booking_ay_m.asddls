@@ -2,7 +2,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @Metadata.allowExtensions: true
 define view entity zc_booking_ay_m
-  //provider contract transactional_query
+  //provider contract transactional_query //No need of contract because Root View is contract is inherited in child view
   as projection on ZI_BOOKING_AY_M
 {
   key TravelId,
