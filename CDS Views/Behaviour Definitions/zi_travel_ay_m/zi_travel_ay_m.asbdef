@@ -1,9 +1,10 @@
-managed; //implementation in class zbp_i_travel_ay_m unique;
+managed implementation in class zcl_db_log_ay_m unique;
 strict ( 2 );
 
 define behavior for ZI_TRAVEL_AY_M //alias <alias_name>
 implementation in class zcl_bp_travel_ay_m unique
 persistent table zay_travel_m
+with additional save
 lock master
 authorization master ( instance )
 etag master LastChangedAt
@@ -42,11 +43,14 @@ early numbering
   validation validateStatus on save { create; field OverallStatus; }
   validation validateBookingFee on save { create; field BookingFee; }
   validation validateCurrencyCode on save { create; field CurrencyCode; }
+
+  determination calculateTotalPrice on modify {create; field TotalPrice, CurrencyCode; }
 }
 
 define behavior for ZI_BOOKING_AY_M //alias <alias_name>
 implementation in class zcl_bp_booking_ay_m unique
 persistent table zay_booking_m
+with additional save
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt
@@ -84,11 +88,13 @@ early numbering
   validation validateConnection on save { create; field ConnectionId; }
   validation validateFlightPrice on save { create; field FlightPrice; }
 
+  determination calculateFlightPrice on modify { create; field FlightPrice, CurrencyCode; }
 }
 
 define behavior for ZI_BOOKSUPP_AY_M //alias <alias_name>
 implementation in class zcl_bp_booksuppl_ay_m unique
-persistent table zay_booksupp_m
+//persistent table zay_booksupp_m
+with unmanaged save with full data
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt
@@ -115,4 +121,6 @@ early numbering
   validation validateCurrencyCode on save { create; field CurrencyCode; }
   validation validateSupplement on save { create; field SupplimentId; }
   validation validatePrice on save { create; field Price; }
+
+  determination calculatePrice on modify { create; field Price, CurrencyCode; }
 }
